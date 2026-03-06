@@ -6,12 +6,17 @@ import { Injector, runInInjectionContext } from '@angular/core';
 
 export interface Category { id: string; name: string; color: string; }
 export interface FixedExpense { id: string; name: string; amount: number; dueDate: string; category: string; }
-export interface Entry { id: string; description: string; amount: number; date: string; category: string; fixedExpenseId?: string; }
+export interface FixedIncome { id: string; name: string; amount: number; receiptDate: string; }
+export interface GoalDeposit { id: string; amount: number; date: string; }
+export interface Goal { id: string; name: string; targetAmount: number; deadline: string; deposits: GoalDeposit[]; }
+export interface Entry { id: string; description: string; amount: number; date: string; category: string; type?: 'income' | 'expense'; fixedExpenseId?: string; }
 export interface Budget { monthStr: string; categoryId: string; amount: number; }
 
 export interface AppData {
     categories: Category[];
     fixedExpenses: FixedExpense[];
+    fixedIncomes: FixedIncome[];
+    goals: Goal[];
     entries: Entry[];
     budgets: Budget[];
 }
@@ -26,6 +31,8 @@ const DEFAULT_CATEGORIES: Category[] = [
 const DEFAULT_DATA: AppData = {
     categories: DEFAULT_CATEGORIES,
     fixedExpenses: [],
+    fixedIncomes: [],
+    goals: [],
     entries: [],
     budgets: []
 };
@@ -103,7 +110,23 @@ export class FinanceService {
             this.loading.set(false);
         });
 
-        this.unsubscribes.push(unsubCat, unsubEnt, unsubExp, unsubBud);
+        // Sync Fixed Incomes
+        const unsubFixedInc = onSnapshot(this.repo.getFixedIncomesRef(uid), (snap) => {
+            const fixedIncomes = snap.docs.map(d => d.data() as FixedIncome);
+            this.updateState({ fixedIncomes });
+        }, (error) => {
+            console.error('Snapshot error (Fixed Incomes):', error);
+        });
+
+        // Sync Goals
+        const unsubGoals = onSnapshot(this.repo.getGoalsRef(uid), (snap) => {
+            const goals = snap.docs.map(d => d.data() as Goal);
+            this.updateState({ goals });
+        }, (error) => {
+            console.error('Snapshot error (Goals):', error);
+        });
+
+        this.unsubscribes.push(unsubCat, unsubEnt, unsubExp, unsubBud, unsubFixedInc, unsubGoals);
     }
 
     private updateState(partial: Partial<AppData>) {
@@ -225,6 +248,82 @@ export class FinanceService {
         } catch (error) {
             console.error('Failed to update budgets:', error);
             this.updateState({ budgets: previousBudgets });
+        }
+    }
+
+    async addFixedIncome(income: FixedIncome) {
+        const uid = this.auth.user()?.uid;
+        if (!uid) return;
+
+        const previousIncomes = this.data().fixedIncomes;
+        this.updateState({ fixedIncomes: [...previousIncomes, income] });
+
+        try {
+            await this.repo.addFixedIncome(uid, income);
+        } catch (error) {
+            console.error('Failed to add fixed income:', error);
+            this.updateState({ fixedIncomes: previousIncomes });
+        }
+    }
+
+    async removeFixedIncome(incomeId: string) {
+        const uid = this.auth.user()?.uid;
+        if (!uid) return;
+
+        const previousIncomes = this.data().fixedIncomes;
+        this.updateState({ fixedIncomes: previousIncomes.filter(inc => inc.id !== incomeId) });
+
+        try {
+            await this.repo.removeFixedIncome(uid, incomeId);
+        } catch (error) {
+            console.error('Failed to remove fixed income:', error);
+            this.updateState({ fixedIncomes: previousIncomes });
+        }
+    }
+
+    async addGoal(goal: Goal) {
+        const uid = this.auth.user()?.uid;
+        if (!uid) return;
+
+        const previousGoals = this.data().goals;
+        this.updateState({ goals: [...previousGoals, goal] });
+
+        try {
+            await this.repo.addGoal(uid, goal);
+        } catch (error) {
+            console.error('Failed to add goal:', error);
+            this.updateState({ goals: previousGoals });
+        }
+    }
+
+    async updateGoal(goalId: string, data: Partial<Goal>) {
+        const uid = this.auth.user()?.uid;
+        if (!uid) return;
+
+        const previousGoals = this.data().goals;
+        const updatedGoals = previousGoals.map(g => g.id === goalId ? { ...g, ...data } as Goal : g);
+        this.updateState({ goals: updatedGoals });
+
+        try {
+            await this.repo.updateGoal(uid, goalId, data);
+        } catch (error) {
+            console.error('Failed to update goal:', error);
+            this.updateState({ goals: previousGoals });
+        }
+    }
+
+    async removeGoal(goalId: string) {
+        const uid = this.auth.user()?.uid;
+        if (!uid) return;
+
+        const previousGoals = this.data().goals;
+        this.updateState({ goals: previousGoals.filter(g => g.id !== goalId) });
+
+        try {
+            await this.repo.removeGoal(uid, goalId);
+        } catch (error) {
+            console.error('Failed to remove goal:', error);
+            this.updateState({ goals: previousGoals });
         }
     }
 

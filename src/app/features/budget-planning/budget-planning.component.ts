@@ -38,7 +38,7 @@ export class BudgetPlanningComponent {
         const entries = data.entries || [];
         const budgets = data.budgets || [];
 
-        const monthEntries = entries.filter((e: any) => e.date.startsWith(monthStr));
+        const monthEntries = entries.filter((e: any) => e.date.startsWith(monthStr) && e.type !== 'income');
 
         return categories.map((cat: any) => {
             const planned = budgets.find((b: Budget) => b.monthStr === monthStr && b.categoryId === cat.id)?.amount || 0;

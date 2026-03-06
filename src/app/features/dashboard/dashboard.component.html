@@ -40,10 +40,23 @@
 }
 
 <div class="dashboard-grid mt-4">
-    <div class="glass-card stat-card total-spent">
-        <h3>Total Gasto</h3>
-        <div class="amount">{{ stats().total | currency:'BRL' }}</div>
+    <div class="glass-card stat-card" style="border-left: 4px solid var(--success);">
+        <h3 style="color: var(--success); margin-bottom: 0.5rem;">Receitas</h3>
+        <div class="amount" style="color: var(--success);">+ {{ stats().totalIncomes | currency:'BRL' }}</div>
     </div>
+    <div class="glass-card stat-card" style="border-left: 4px solid var(--danger);">
+        <h3 style="color: var(--danger); margin-bottom: 0.5rem;">Despesas</h3>
+        <div class="amount" style="color: var(--danger);">- {{ stats().totalExpenses | currency:'BRL' }}</div>
+    </div>
+    <div class="glass-card stat-card" style="border-left: 4px solid var(--primary);">
+        <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Saldo do Mês</h3>
+        <div class="amount" [style.color]="stats().balance >= 0 ? 'var(--success)' : 'var(--danger)'">
+            {{ stats().balance | currency:'BRL' }}
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid mt-4" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
     <div class="glass-card stat-card fixed-spent">
         <h3>Contas Fixas Previstas</h3>
         <div class="amount">{{ stats().fixed | currency:'BRL' }}</div>
@@ -54,10 +67,27 @@
     </div>
 </div>
 
-<h2 class="section-title mt-4">Lançamentos {{ period() === 'all' ? '' : 'do Período' }}</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"
+    class="mt-4 mb-2">
+    <h2 class="section-title" style="margin: 0;">Lançamentos {{ period() === 'all' ? '' : 'do Período' }}</h2>
+
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <input type="text" class="glass-input" placeholder="Buscar lançamento..." [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)" style="padding: 0.5rem 1rem; border-radius: 8px; width: 200px;">
+
+        <select class="glass-input" [ngModel]="filterCategory()" (ngModelChange)="filterCategory.set($event)"
+            style="padding: 0.5rem 1rem; border-radius: 8px;">
+            <option value="all">Todas Categorias</option>
+            @for (cat of finance.data().categories; track cat.id) {
+            <option [value]="cat.id">{{ cat.name }}</option>
+            }
+        </select>
+    </div>
+</div>
+
 <div class="glass-card transaction-list-container">
     <ul class="transaction-list">
-        @for (tx of recentTxs(); track tx.id) {
+        @for (tx of displayedTxs(); track tx.id) {
         <li class="transaction-item" (click)="editEntry(tx.id)" style="cursor: pointer; transition: background 0.2s;"
             onmouseover="this.style.background='var(--surface-50)'" onmouseout="this.style.background='transparent'">
             <div class="transaction-info">
@@ -69,8 +99,14 @@
                     <span>{{ tx.date | date:'dd/MM/yyyy' }}</span>
                 </div>
             </div>
-            <div class="transaction-amount" style="display: flex; align-items: center; gap: 0.5rem;">
+            <div class="transaction-amount"
+                style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem;"
+                [style.color]="tx.type === 'income' ? 'var(--success)' : 'var(--text-color)'">
+                @if (tx.type === 'income') {
+                + {{ tx.amount | currency:'BRL' }}
+                } @else {
                 - {{ tx.amount | currency:'BRL' }}
+                }
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     style="opacity: 0.5;">
                     <path d="M12 20h9"></path>
@@ -81,7 +117,7 @@
         } @empty {
         <li class="transaction-item">
             <div class="transaction-info"><span class="transaction-desc" style="color:var(--text-muted)">Nenhum
-                    lançamento no período.</span></div>
+                    lançamento encontrado.</span></div>
         </li>
         }
     </ul>

@@ -30,51 +30,56 @@
     </div>
 </header>
 
-<div class="glass-card table-container">
-    <table class="glass-table">
-        <thead>
-            <tr>
-                <th>Categoria</th>
-                <th style="text-align: right;">Meta (R$)</th>
-                <th style="text-align: right;">Executado (R$)</th>
-                <th style="text-align: right;">Saldo (R$)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (item of budgetItems(); track item.category.id) {
-            <tr>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <div class="color-dot" [style.backgroundColor]="item.category.color"
-                            style="width: 12px; height: 12px; border-radius: 50%;"></div>
-                        <span>{{ item.category.name }}</span>
-                    </div>
-                </td>
-                <td style="text-align: right;">
-                    <input type="number" class="glass-input"
-                        style="width: 120px; text-align: right; padding: 0.25rem 0.5rem;" [ngModel]="item.planned"
-                        (blur)="updateBudget(item.category.id, $event)">
-                </td>
-                <td style="text-align: right; font-weight: 500;">
-                    {{ item.executed | currency:'BRL' }}
-                </td>
-                <td style="text-align: right; font-weight: 700;"
-                    [ngClass]="item.remaining >= 0 ? 'text-success' : 'text-danger'">
-                    {{ item.remaining | currency:'BRL' }}
-                </td>
-            </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td style="font-weight: bold;">TOTAL</td>
-                <td style="text-align: right; font-weight: bold;">{{ totals().planned | currency:'BRL' }}</td>
-                <td style="text-align: right; font-weight: bold;">{{ totals().executed | currency:'BRL' }}</td>
-                <td style="text-align: right; font-weight: bold;"
-                    [ngClass]="totals().remaining >= 0 ? 'text-success' : 'text-danger'">
-                    {{ totals().remaining | currency:'BRL' }}
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+<div class="glass-card" style="padding: 1rem;">
+    <!-- Desktop Header -->
+    <div class="desktop-only"
+        style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; font-weight: bold; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem; padding-left: 0.5rem; padding-right: 0.5rem;">
+        <div>Categoria</div>
+        <div style="text-align: right;">Meta (R$)</div>
+        <div style="text-align: right;">Executado (R$)</div>
+        <div style="text-align: right;">Saldo (R$)</div>
+    </div>
+
+    <!-- Items -->
+    @for (item of budgetItems(); track item.category.id) {
+    <div class="mobile-list-item"
+        style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 0.5rem; gap: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div class="color-dot" [style.backgroundColor]="item.category.color"
+                style="width: 12px; height: 12px; border-radius: 50%;"></div>
+            <span style="font-weight: 500;">{{ item.category.name }}</span>
+        </div>
+
+        <div style="text-align: right;">
+            <span class="mobile-label">Meta:</span>
+            <input type="number" class="glass-input"
+                style="width: 100%; max-width: 120px; text-align: right; padding: 0.25rem 0.5rem;"
+                [ngModel]="item.planned" (blur)="updateBudget(item.category.id, $event)">
+        </div>
+
+        <div style="text-align: right; font-weight: 500;">
+            <span class="mobile-label">Executado:</span>
+            <span>{{ item.executed | currency:'BRL' }}</span>
+        </div>
+
+        <div style="text-align: right; font-weight: 700;"
+            [ngClass]="item.remaining >= 0 ? 'text-success' : 'text-danger'">
+            <span class="mobile-label">Saldo:</span>
+            <span>{{ item.remaining | currency:'BRL' }}</span>
+        </div>
+    </div>
+    }
+
+    <!-- Totals -->
+    <div class="mobile-list-item"
+        style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; font-weight: bold; border-top: 1px solid var(--glass-border); padding-top: 1rem; margin-top: 1rem; padding-left: 0.5rem; padding-right: 0.5rem;">
+        <div class="desktop-only">TOTAL</div>
+        <div style="text-align: right;"><span class="mobile-label">Meta Total:</span><span>{{ totals().planned |
+                currency:'BRL' }}</span></div>
+        <div style="text-align: right;"><span class="mobile-label">Total Exec.:</span><span>{{ totals().executed |
+                currency:'BRL' }}</span></div>
+        <div style="text-align: right;" [ngClass]="totals().remaining >= 0 ? 'text-success' : 'text-danger'">
+            <span class="mobile-label">Livre:</span><span>{{ totals().remaining | currency:'BRL' }}</span>
+        </div>
+    </div>
 </div>

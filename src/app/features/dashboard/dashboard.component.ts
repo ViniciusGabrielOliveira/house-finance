@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { FinanceService } from '../../core/services/finance.service';
 import { Router } from '@angular/router';
@@ -7,7 +8,7 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, DatePipe],
+    imports: [CommonModule, CurrencyPipe, DatePipe, FormsModule],
     templateUrl: './dashboard.component.html',
     styleUrl: './dashboard.component.scss'
 })
@@ -102,13 +103,18 @@ export class DashboardComponent {
         const data = this.finance.data();
         const entries = this.filteredEntries();
 
-        let total = 0, leisure = 0, fixed = 0;
+        let totalIncomes = 0, totalExpenses = 0, leisure = 0, fixed = 0;
         const leisureCat = data.categories?.find((c: any) => c.name.toLowerCase() === 'lazer');
 
         entries.forEach((e: any) => {
             const amount = Number(e.amount);
-            total += amount;
-            if (leisureCat && e.category === leisureCat.id) leisure += amount;
+
+            if (e.type === 'income') {
+                totalIncomes += amount;
+            } else {
+                totalExpenses += amount;
+                if (leisureCat && e.category === leisureCat.id) leisure += amount;
+            }
         });
 
         // Sum fixed expenses (monthly projected string/number values)
@@ -133,13 +139,28 @@ export class DashboardComponent {
             }
         }
 
-        return { total, leisure, fixed };
+        const balance = totalIncomes - totalExpenses;
+
+        return { totalIncomes, totalExpenses, balance, leisure, fixed };
     });
 
-    recentTxs = computed(() => {
-        return [...this.filteredEntries()]
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .slice(0, 10);
+    searchTerm = signal('');
+    filterCategory = signal('all');
+
+    displayedTxs = computed(() => {
+        let txs = [...this.filteredEntries()];
+
+        const term = this.searchTerm().toLowerCase();
+        if (term) {
+            txs = txs.filter((t: any) => t.description.toLowerCase().includes(term));
+        }
+
+        const cat = this.filterCategory();
+        if (cat !== 'all') {
+            txs = txs.filter((t: any) => t.category === cat);
+        }
+
+        return txs.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
 
     getCategoryColor(id: string) {
@@ -162,7 +183,7 @@ export class DashboardComponent {
         if (monthBudgets.length === 0) return null;
 
         const totalPlanned = monthBudgets.reduce((sum, b) => sum + Number(b.amount), 0);
-        const totalSpent = this.stats().total;
+        const totalSpent = this.stats().totalExpenses;
 
         if (totalSpent > totalPlanned) {
             return `Atenção: Seus gastos ultrapassaram o orçamento geral planejado para o mês!`;

@@ -23,6 +23,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/fixed-accounts/fixed-accounts.component').then(m => m.FixedAccountsComponent)
     },
     {
+        path: 'fixed-incomes',
+        loadComponent: () => import('./features/fixed-incomes/fixed-incomes').then(m => m.FixedIncomesComponent)
+    },
+    {
+        path: 'goals',
+        loadComponent: () => import('./features/goals/goals').then(m => m.GoalsComponent)
+    },
+    {
         path: 'categories',
         loadComponent: () => import('./features/categories/categories.component').then(m => m.CategoriesComponent)
     },

@@ -1,0 +1,97 @@
+<header class="page-header">
+    <h1>Metas e Objetivos</h1>
+    <p class="subtitle">Acompanhe suas economias para viagens, compras, e realizações</p>
+</header>
+
+<div class="glass-card" style="padding: 2rem; margin-bottom: 2rem;">
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="inline-form mb-4"
+        style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;">
+        <div class="input-group flex-1" style="margin:0; min-width:200px;">
+            <label>Qual o seu objetivo?</label>
+            <input type="text" name="name" [(ngModel)]="goalName" placeholder="Ex: Viagem para Paris" required>
+        </div>
+        <div class="input-group" style="margin:0; width:150px;">
+            <label>Valor Alvo</label>
+            <input type="number" name="amount" [(ngModel)]="goalAmount" placeholder="R$ 0,00" required min="0.01"
+                step="0.01">
+        </div>
+        <div class="input-group" style="margin:0; width:150px;">
+            <label>Até quando?</label>
+            <input type="date" name="deadline" [(ngModel)]="goalDeadline" required>
+        </div>
+
+        <button type="submit" class="btn primary-btn" [disabled]="!f.valid">Criar Meta</button>
+    </form>
+</div>
+
+<div class="goals-grid"
+    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+    @for (goal of finance.data().goals; track goal.id) {
+    <div class="glass-card goal-card"
+        style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; position: relative;">
+
+        <button class="action-btn" (click)="finance.removeGoal(goal.id)" title="Excluir"
+            style="position: absolute; top: 1rem; right: 1rem;">
+            &times;
+        </button>
+
+        <div>
+            <h3 style="margin-bottom: 0.2rem; margin-right: 2rem;">{{ goal.name }}</h3>
+            <p class="text-sm opacity-70">Prazo: {{ goal.deadline | date:'dd/MM/yyyy' }}</p>
+        </div>
+
+        <ng-container *ngIf="getGoalStats(goal) as stats">
+            <div class="goal-amounts" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <span class="text-sm opacity-70">Alcançado</span>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">{{ stats.totalInvested |
+                        currency:'BRL' }}</div>
+                </div>
+                <div style="text-align: right;">
+                    <span class="text-sm opacity-70">Objetivo</span>
+                    <div style="font-weight: 600;">{{ goal.targetAmount | currency:'BRL' }}</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar-container"
+                style="width: 100%; height: 8px; background: var(--surface-100); border-radius: 4px; overflow: hidden; margin: 0.5rem 0;">
+                <div class="progress-fill" [style.width.%]="stats.progressPercent"
+                    style="height: 100%; background: var(--success); transition: width 0.3s ease;"></div>
+            </div>
+
+            <div class="goal-recommendation glass-panel"
+                style="padding: 1rem; border-radius: 8px; font-size: 0.9rem; background: rgba(99, 102, 241, 0.05);">
+                @if (stats.remaining > 0) {
+                <p style="margin: 0;">Faltam <strong>{{ stats.remaining | currency:'BRL' }}</strong> em <strong>{{
+                        stats.monthsRemaining }}</strong> meses.</p>
+                <p style="margin: 0; margin-top: 0.3rem;">Recomendado poupar: <strong style="color: var(--primary);">{{
+                        stats.monthlyRequired | currency:'BRL' }} / mês</strong></p>
+                } @else {
+                <p style="margin: 0; color: var(--success); font-weight: 600; text-align: center;">🎉 Objetivo
+                    Alcançado!</p>
+                }
+            </div>
+
+            @if (activeDepositGoalId === goal.id) {
+            <div class="deposit-form" style="display: flex; gap: 0.5rem; margin-top: auto; flex-wrap: wrap;">
+                <input type="number" [(ngModel)]="newDepositAmount" class="glass-input" placeholder="R$ 0,00"
+                    style="flex: 1; min-width: 100px;">
+                <button class="btn primary-btn" (click)="saveDeposit(goal)"
+                    [disabled]="!newDepositAmount">Salvar</button>
+                <button class="btn action-btn" (click)="cancelDeposit()">Cancelar</button>
+            </div>
+            } @else {
+            <button class="btn primary-btn outline" style="margin-top: auto;" (click)="startDeposit(goal.id)"
+                [disabled]="stats.remaining <= 0">
+                + Adicionar Depósito
+            </button>
+            }
+        </ng-container>
+    </div>
+    } @empty {
+    <div class="empty-state" style="grid-column: 1 / -1; padding: 3rem; text-align: center;">
+        <p>Você ainda não possui nenhuma meta cadastrada.</p>
+    </div>
+    }
+</div>

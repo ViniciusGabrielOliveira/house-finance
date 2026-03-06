@@ -1,17 +1,47 @@
 <div id="app-container">
     @if (auth.isLoggedIn()) {
+
+    <header class="mobile-header">
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="hamburger-btn" (click)="toggleMobileMenu()">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <h2 style="margin: 0; font-size: 1.5rem; color: var(--primary);">Finanças</h2>
+        </div>
+    </header>
+
     <div id="main-screen" class="screen active">
-        <nav class="sidebar glass-panel">
+
+        @if (isMobileMenuOpen()) {
+        <div class="sidebar-backdrop" (click)="closeMobileMenu()"></div>
+        }
+
+        <nav class="sidebar glass-panel" [class.open]="isMobileMenuOpen()">
             <div class="brand">
                 <h2>Finanças</h2>
+                <button class="close-sidebar-btn" (click)="closeMobileMenu()">&times;</button>
             </div>
             <ul class="nav-links">
-                <li><a routerLink="/dashboard" routerLinkActive="active" class="nav-btn">Visão Geral</a></li>
-                <li><a routerLink="/add-entry" routerLinkActive="active" class="nav-btn">Lançar Despesa</a></li>
-                <li><a routerLink="/quick-leisure" routerLinkActive="active" class="nav-btn">Rápido (Lazer)</a></li>
-                <li><a routerLink="/budget-planning" routerLinkActive="active" class="nav-btn">Planejamento</a></li>
-                <li><a routerLink="/fixed-expenses" routerLinkActive="active" class="nav-btn">Contas Fixas</a></li>
-                <li><a routerLink="/categories" routerLinkActive="active" class="nav-btn">Categorias</a></li>
+                <li><a routerLink="/dashboard" routerLinkActive="active" class="nav-btn"
+                        (click)="closeMobileMenu()">Visão Geral</a></li>
+                <li><a routerLink="/add-entry" routerLinkActive="active" class="nav-btn"
+                        (click)="closeMobileMenu()">Lançar Despesa</a></li>
+                <li><a routerLink="/quick-leisure" routerLinkActive="active" class="nav-btn"
+                        (click)="closeMobileMenu()">Rápido (Lazer)</a></li>
+                <li><a routerLink="/budget-planning" routerLinkActive="active" class="nav-btn"
+                        (click)="closeMobileMenu()">Planejamento</a></li>
+                <li><a routerLink="/fixed-expenses" routerLinkActive="active" class="nav-btn"
+                        (click)="closeMobileMenu()">Contas Fixas</a></li>
+                <li><a routerLink="/fixed-incomes" routerLinkActive="active" class="nav-btn"
+                        (click)="closeMobileMenu()">Receitas Fixas</a></li>
+                <li><a routerLink="/goals" routerLinkActive="active" class="nav-btn" (click)="closeMobileMenu()">Metas e
+                        Objetivos</a></li>
+                <li><a routerLink="/categories" routerLinkActive="active" class="nav-btn"
+                        (click)="closeMobileMenu()">Categorias</a></li>
             </ul>
             <div class="user-info">
                 <span id="current-user">{{ auth.user()?.displayName }}</span>

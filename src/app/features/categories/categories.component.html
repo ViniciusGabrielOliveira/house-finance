@@ -5,7 +5,7 @@
 
 <div class="glass-card" style="padding: 2rem;">
     <form (ngSubmit)="onSubmit()" #f="ngForm" class="inline-form mb-4"
-        style="display:flex; gap:1rem; align-items:center;">
+        style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
         <div class="input-group flex-1" style="margin:0;">
             <input type="text" name="name" [(ngModel)]="catName" placeholder="Nova Categoria" required>
         </div>
