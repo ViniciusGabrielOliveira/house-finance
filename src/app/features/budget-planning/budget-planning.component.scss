@@ -1,0 +1,41 @@
+.table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.glass-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.glass-table th,
+.glass-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.glass-table th {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.glass-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.glass-table tfoot td {
+    border-top: 2px solid var(--glass-border);
+    border-bottom: none;
+}
+
+.text-success {
+    color: var(--success, #4caf50);
+}
+
+.text-danger {
+    color: var(--danger, #f44336);
+}

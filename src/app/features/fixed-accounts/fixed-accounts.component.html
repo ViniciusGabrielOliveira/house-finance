@@ -1,0 +1,47 @@
+<header class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h1>Contas Fixas</h1>
+        <p class="subtitle">Planejamento e controle de contas fixas do mês</p>
+    </div>
+    <div>
+        <input type="month" [ngModel]="selectedMonth()" (ngModelChange)="selectedMonth.set($event)" class="glass-input">
+    </div>
+</header>
+
+<div class="glass-card">
+    <div class="list-header"
+        style="display:flex; justify-content:space-between; align-items:center; padding:1.5rem; border-bottom:1px solid var(--glass-border)">
+        <h3>Contas do Mês</h3>
+        <button class="btn secondary-btn small-btn" (click)="addFixedExpense()">+ Nova Conta Fixa</button>
+    </div>
+
+    <ul class="transaction-list border-list" style="padding: 1rem;">
+        @for (exp of finance.data().fixedExpenses; track exp.id) {
+        <li class="transaction-item">
+            <div class="transaction-info">
+                <span class="transaction-desc" [class.amount-paid]="isPaid(exp)">{{ exp.name }} (Vence dia {{
+                    exp.dueDate }})</span>
+                <div class="transaction-meta">
+                    <span class="category-badge" [style.backgroundColor]="getCategoryColor(exp.category)">
+                        {{ getCategoryName(exp.category) }}
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex" style="display:flex; gap: 1rem; align-items: center;">
+                <div class="transaction-amount" [class.amount-paid]="isPaid(exp)">{{ exp.amount | currency:'BRL' }}
+                </div>
+
+                @if (!isPaid(exp)) {
+                <button class="btn secondary-btn small-btn" (click)="markPaid(exp)">Pendente</button>
+                } @else {
+                <span style="color: var(--secondary); font-weight:600; font-size: 0.9rem">✔ Pago</span>
+                }
+            </div>
+        </li>
+        } @empty {
+        <li class="transaction-item">
+            <div style="color:var(--text-muted)">Sem contas fixas cadastradas.</div>
+        </li>
+        }
+    </ul>
+</div>

@@ -1,0 +1,80 @@
+<header class="page-header"
+    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1>Planejamento Orçamentário</h1>
+        <p class="subtitle">Metas e limites de gastos por categoria</p>
+    </div>
+
+    <div class="period-filter" style="display: flex; gap: 1rem; align-items: center;">
+        <button class="btn text-btn" (click)="changeMonth(-1)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        <span style="font-size: 1.1rem; font-weight: 500; min-width: 120px; text-align: center;">
+            {{ currentLabel() }}
+        </span>
+        <button class="btn text-btn" (click)="changeMonth(1)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6" />
+            </svg>
+        </button>
+        <button class="btn secondary-btn" (click)="copyPreviousMonth()"
+            style="margin-left: 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copiar Mês Anterior
+        </button>
+    </div>
+</header>
+
+<div class="glass-card table-container">
+    <table class="glass-table">
+        <thead>
+            <tr>
+                <th>Categoria</th>
+                <th style="text-align: right;">Meta (R$)</th>
+                <th style="text-align: right;">Executado (R$)</th>
+                <th style="text-align: right;">Saldo (R$)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (item of budgetItems(); track item.category.id) {
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div class="color-dot" [style.backgroundColor]="item.category.color"
+                            style="width: 12px; height: 12px; border-radius: 50%;"></div>
+                        <span>{{ item.category.name }}</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">
+                    <input type="number" class="glass-input"
+                        style="width: 120px; text-align: right; padding: 0.25rem 0.5rem;" [ngModel]="item.planned"
+                        (blur)="updateBudget(item.category.id, $event)">
+                </td>
+                <td style="text-align: right; font-weight: 500;">
+                    {{ item.executed | currency:'BRL' }}
+                </td>
+                <td style="text-align: right; font-weight: 700;"
+                    [ngClass]="item.remaining >= 0 ? 'text-success' : 'text-danger'">
+                    {{ item.remaining | currency:'BRL' }}
+                </td>
+            </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td style="font-weight: bold;">TOTAL</td>
+                <td style="text-align: right; font-weight: bold;">{{ totals().planned | currency:'BRL' }}</td>
+                <td style="text-align: right; font-weight: bold;">{{ totals().executed | currency:'BRL' }}</td>
+                <td style="text-align: right; font-weight: bold;"
+                    [ngClass]="totals().remaining >= 0 ? 'text-success' : 'text-danger'">
+                    {{ totals().remaining | currency:'BRL' }}
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

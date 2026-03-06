@@ -1,0 +1,26 @@
+<header class="page-header">
+    <h1>Categorias</h1>
+    <p class="subtitle">Gerencie as categorias de despesas</p>
+</header>
+
+<div class="glass-card" style="padding: 2rem;">
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="inline-form mb-4"
+        style="display:flex; gap:1rem; align-items:center;">
+        <div class="input-group flex-1" style="margin:0;">
+            <input type="text" name="name" [(ngModel)]="catName" placeholder="Nova Categoria" required>
+        </div>
+        <div class="input-group w-auto" style="margin:0;">
+            <input type="color" name="color" [(ngModel)]="catColor" required>
+        </div>
+        <button type="submit" class="btn primary-btn" [disabled]="!f.valid">Adicionar</button>
+    </form>
+
+    <ul class="pill-list" style="list-style:none; display:flex; flex-wrap:wrap; gap:0.5rem;">
+        @for (cat of finance.data().categories; track cat.id) {
+        <li class="pill" [style.backgroundColor]="cat.color">
+            {{ cat.name }}
+            <button class="action-btn" (click)="finance.removeCategory(cat.id)">&times;</button>
+        </li>
+        }
+    </ul>
+</div>

@@ -1,0 +1,176 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+
+import { FinanceService } from '../../core/services/finance.service';
+import { Router } from '@angular/router';
+
+@Component({
+    selector: 'app-dashboard',
+    standalone: true,
+    imports: [CommonModule, CurrencyPipe, DatePipe],
+    templateUrl: './dashboard.component.html',
+    styleUrl: './dashboard.component.scss'
+})
+export class DashboardComponent {
+    finance = inject(FinanceService);
+    router = inject(Router);
+
+    period = signal<'current_month' | 'previous_month' | 'current_year' | 'all' | 'custom_range'>('current_month');
+
+    // YYYY-MM format
+    startMonth = signal<string>('');
+    endMonth = signal<string>('');
+
+    onPeriodChange(event: Event) {
+        const val = (event.target as HTMLSelectElement).value as any;
+        this.period.set(val);
+
+        // Auto-initialize standard variables when switching to custom
+        if (val === 'custom_range' && !this.startMonth() && !this.endMonth()) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const currentStr = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            this.startMonth.set(`${year}-01`); // Default to Jan current year
+            this.endMonth.set(currentStr); // Default to current month
+        }
+    }
+
+    onCustomRangeChange(type: 'start' | 'end', event: Event) {
+        const val = (event.target as HTMLInputElement).value;
+        if (type === 'start') this.startMonth.set(val);
+        if (type === 'end') this.endMonth.set(val);
+    }
+
+    getPeriodLabel(): string {
+        const p = this.period();
+        const now = new Date();
+        const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+        if (p === 'current_month') return `${monthNames[now.getMonth()]} de ${now.getFullYear()}`;
+        if (p === 'previous_month') {
+            const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            return `${monthNames[prev.getMonth()]} de ${prev.getFullYear()}`;
+        }
+        if (p === 'current_year') return `Ano de ${now.getFullYear()}`;
+        if (p === 'custom_range') {
+            const start = this.startMonth();
+            const end = this.endMonth();
+            if (!start || !end) return 'Período Personalizado';
+
+            const [sYear, sMonth] = start.split('-');
+            const [eYear, eMonth] = end.split('-');
+            return `${monthNames[parseInt(sMonth) - 1]}/${sYear} até ${monthNames[parseInt(eMonth) - 1]}/${eYear}`;
+        }
+        return 'Todo o Período';
+    }
+
+    filteredEntries = computed(() => {
+        const p = this.period();
+        const data = this.finance.data();
+        let entries = data.entries || [];
+
+        if (p === 'all') return entries;
+
+        const now = new Date();
+        if (p === 'current_month') {
+            const currentMonthStr = now.toISOString().slice(0, 7);
+            return entries.filter((e: any) => e.date.startsWith(currentMonthStr));
+        }
+        if (p === 'previous_month') {
+            const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            const prevLabel = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
+            return entries.filter((e: any) => e.date.startsWith(prevLabel));
+        }
+        if (p === 'current_year') {
+            const yearStr = String(now.getFullYear());
+            return entries.filter((e: any) => e.date.startsWith(yearStr));
+        }
+        if (p === 'custom_range') {
+            const start = this.startMonth();
+            const end = this.endMonth();
+            if (!start || !end) return entries;
+
+            return entries.filter((e: any) => {
+                const entryMonthStr = e.date.slice(0, 7); // "YYYY-MM"
+                return entryMonthStr >= start && entryMonthStr <= end;
+            });
+        }
+        return entries;
+    });
+
+    stats = computed(() => {
+        const data = this.finance.data();
+        const entries = this.filteredEntries();
+
+        let total = 0, leisure = 0, fixed = 0;
+        const leisureCat = data.categories?.find((c: any) => c.name.toLowerCase() === 'lazer');
+
+        entries.forEach((e: any) => {
+            const amount = Number(e.amount);
+            total += amount;
+            if (leisureCat && e.category === leisureCat.id) leisure += amount;
+        });
+
+        // Sum fixed expenses (monthly projected string/number values)
+        if (data.fixedExpenses) {
+            data.fixedExpenses.forEach((fe: any) => fixed += Number(fe.amount));
+        }
+
+        const p = this.period();
+        if (p === 'current_year') {
+            fixed = fixed * 12;
+        } else if (p === 'custom_range') {
+            const start = this.startMonth();
+            const end = this.endMonth();
+            if (start && end) {
+                const startD = new Date(`${start}-01T00:00:00`);
+                const endD = new Date(`${end}-01T00:00:00`);
+                let months = (endD.getFullYear() - startD.getFullYear()) * 12;
+                months -= startD.getMonth();
+                months += endD.getMonth();
+                months = months <= 0 ? 1 : months + 1; // Inclusive month count
+                fixed = fixed * months;
+            }
+        }
+
+        return { total, leisure, fixed };
+    });
+
+    recentTxs = computed(() => {
+        return [...this.filteredEntries()]
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .slice(0, 10);
+    });
+
+    getCategoryColor(id: string) {
+        return this.finance.data().categories?.find((c: any) => c.id === id)?.color || '#94a3b8';
+    }
+
+    getCategoryName(id: string) {
+        return this.finance.data().categories?.find((c: any) => c.id === id)?.name || 'Sem Categoria';
+    }
+
+    budgetAlert = computed(() => {
+        const p = this.period();
+        if (p !== 'current_month') return null;
+
+        const data = this.finance.data();
+        const monthStr = new Date().toISOString().slice(0, 7);
+        const budgets = data.budgets || [];
+        const monthBudgets = budgets.filter((b: any) => b.monthStr === monthStr);
+
+        if (monthBudgets.length === 0) return null;
+
+        const totalPlanned = monthBudgets.reduce((sum, b) => sum + Number(b.amount), 0);
+        const totalSpent = this.stats().total;
+
+        if (totalSpent > totalPlanned) {
+            return `Atenção: Seus gastos ultrapassaram o orçamento geral planejado para o mês!`;
+        }
+        return null;
+    });
+
+    editEntry(id: string) {
+        this.router.navigate(['/edit-entry', id]);
+    }
+}

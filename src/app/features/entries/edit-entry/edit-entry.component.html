@@ -1,0 +1,36 @@
+<header class="page-header">
+    <h1>Editar Despesa</h1>
+    <p class="subtitle">Modifique um lançamento existente</p>
+</header>
+<div class="glass-card form-container">
+    <form (ngSubmit)="onSubmit()" #f="ngForm">
+        <div class="input-group">
+            <label for="entry-desc">Descrição</label>
+            <input type="text" id="entry-desc" name="desc" [(ngModel)]="desc">
+        </div>
+        <div class="input-row">
+            <div class="input-group">
+                <label for="entry-amount">Valor (R$)</label>
+                <input type="number" step="0.01" id="entry-amount" name="amount" [(ngModel)]="amount" required>
+            </div>
+            <div class="input-group">
+                <label for="entry-date">Data</label>
+                <input type="date" id="entry-date" name="date" [(ngModel)]="date">
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="entry-category">Categoria</label>
+            <select id="entry-category" name="category" [(ngModel)]="category" required>
+                @for (cat of finance.data().categories; track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+                }
+            </select>
+        </div>
+
+        <div class="btn-group mt-2" style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn secondary-btn" (click)="cancel()">Cancelar</button>
+            <button type="submit" class="btn primary-btn" [disabled]="!f.valid" style="flex: 1;">Salvar
+                Alterações</button>
+        </div>
+    </form>
+</div>
