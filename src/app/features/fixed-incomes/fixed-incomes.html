@@ -29,29 +29,71 @@
 
     <ul class="transaction-list border-list" style="padding: 1rem 0 0 0;">
         @for (inc of finance.data().fixedIncomes; track inc.id) {
-        <li class="transaction-item">
-            <div class="transaction-info">
-                <span class="transaction-desc" [class.amount-paid]="isReceived(inc)">
-                    {{ inc.name }} (Previsto dia {{ inc.receiptDate | date:'dd/MM' }})
-                </span>
+        <li class="transaction-item"
+            style="padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--glass-border); background: transparent; transition: background 0.2s;"
+            onmouseover="this.style.background='var(--surface-50)'" onmouseout="this.style.background='transparent'">
+            <div class="transaction-info"
+                style="display: flex; gap: 1rem; align-items: flex-start; flex: 1; min-width: 250px;">
+                <div class="icon-box"
+                    style="width: 40px; height: 40px; border-radius: 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                    <span class="transaction-desc" style="font-size: 1.1rem; font-weight: 500;"
+                        [class.amount-paid]="isReceived(inc)">
+                        {{ inc.name }}
+                    </span>
+                    <small
+                        style="color: var(--text-muted); font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Recebimento previsto: {{ inc.receiptDate | date:'dd/MM' }}
+                    </small>
+                </div>
             </div>
 
-            <div
-                style="display:flex; gap: 1rem; align-items: center; justify-content: flex-end; flex: 1; flex-wrap: wrap;">
+            <div style="display:flex; gap: 1.25rem; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
                 <div class="transaction-amount" [class.amount-paid]="isReceived(inc)"
-                    style="text-align: right; color: var(--success); font-weight: 600;">
+                    style="text-align: right; color: var(--success); font-size: 1.2rem; font-weight: 600;">
                     + {{ inc.amount | currency:'BRL' }}
                 </div>
 
-                @if (!isReceived(inc)) {
-                <button class="btn primary-btn small-btn" (click)="receiveIncome(inc)">Receber</button>
-                } @else {
-                <span style="color: var(--success); font-weight:600; font-size: 0.9rem">✔ Recebido</span>
-                }
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    @if (!isReceived(inc)) {
+                    <button class="btn secondary-btn small-btn"
+                        style="border-color: var(--success); color: var(--success);" (click)="receiveIncome(inc)">
+                        <span style="display: flex; align-items: center; gap: 0.25rem;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Receber
+                        </span>
+                    </button>
+                    } @else {
+                    <span
+                        style="color: var(--success); font-weight:600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.25rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M8 11.5L11 14.5L16 9.5"></path>
+                        </svg>
+                        Recebido
+                    </span>
+                    }
 
-                <button class="action-btn"
-                    style="color:var(--danger); font-size: 1.2rem; display:flex; align-items:center; padding: 0.2rem;"
-                    (click)="finance.removeFixedIncome(inc.id)" title="Remover">&times;</button>
+                    <button class="action-btn"
+                        style="color:var(--text-muted); font-size: 1.2rem; display:flex; align-items:center; padding: 0.2rem; transition: color 0.2s;"
+                        onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'"
+                        (click)="finance.removeFixedIncome(inc.id)" title="Excluir">&times;</button>
+                </div>
             </div>
         </li>
         } @empty {
