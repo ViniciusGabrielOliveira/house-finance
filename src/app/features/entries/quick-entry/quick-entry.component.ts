@@ -18,13 +18,21 @@ export class QuickEntryComponent {
     desc = '';
     amount: number | null = null;
     date = ''; // Defaults to empty so placeholder shows
+    type: 'income' | 'expense' = 'expense';
 
     async onSubmit() {
         if (!this.amount) return;
 
-        let targetCat = this.finance.data().categories.find((c: any) => c.name.toLowerCase() === 'lazer');
-        if (!targetCat) {
-            targetCat = this.finance.data().categories[0];
+        let finalCatId = '';
+
+        if (this.type === 'income') {
+            finalCatId = await this.finance.ensureCategory('Receita', '#10b981');
+        } else {
+            let targetCat = this.finance.data().categories.find((c: any) => c.name.toLowerCase() === 'lazer');
+            if (!targetCat) {
+                targetCat = this.finance.data().categories[0];
+            }
+            finalCatId = targetCat ? targetCat.id : await this.finance.ensureCategory('Lazer', '#f59e0b');
         }
 
         let finalDate = this.date;
@@ -34,7 +42,8 @@ export class QuickEntryComponent {
 
         let finalDesc = this.desc;
         if (!finalDesc || finalDesc.trim() === '') {
-            finalDesc = targetCat.name;
+            const catObj = this.finance.data().categories.find((c: any) => c.id === finalCatId);
+            finalDesc = catObj ? catObj.name : (this.type === 'income' ? 'Receita' : 'Lazer');
         }
 
         const entry: Entry = {
@@ -42,7 +51,8 @@ export class QuickEntryComponent {
             description: finalDesc,
             amount: this.amount,
             date: finalDate,
-            category: targetCat.id
+            category: finalCatId,
+            type: this.type
         };
 
         await this.finance.addEntry(entry);

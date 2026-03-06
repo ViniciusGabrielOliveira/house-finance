@@ -2,10 +2,21 @@
     <h1>Lançar Despesa</h1>
     <p class="subtitle">Registre um novo gasto manual</p>
 </header>
-<div class="glass-card form-container">
-    <form (ngSubmit)="onSubmit()" #f="ngForm">
+<div class="glass-card" style="padding: 2rem;">
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="stacked-form">
+        <div class="input-row" style="margin-bottom: 1rem; display: flex; gap: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="entryType" value="expense" [(ngModel)]="type">
+                <span>Despesa</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="entryType" value="income" [(ngModel)]="type">
+                <span>Receita</span>
+            </label>
+        </div>
+
         <div class="input-group">
-            <label for="entry-desc">Descrição (Opcional)</label>
+            <label for="entry-desc">Descrição</label>
             <input type="text" id="entry-desc" name="desc" [(ngModel)]="desc">
         </div>
         <div class="input-row">

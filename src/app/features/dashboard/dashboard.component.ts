@@ -261,4 +261,43 @@ export class DashboardComponent {
     editEntry(id: string) {
         this.router.navigate(['/edit-entry', id]);
     }
+
+    async fixDatabase() {
+        const receitaCatId = await this.finance.ensureCategory('Receita', '#10b981');
+        const contaFixaCatId = await this.finance.ensureCategory('Conta Fixa', '#64748b');
+
+        const data = this.finance.data();
+
+        // Corrigir Lançamentos
+        for (const entry of data.entries) {
+            let changed = false;
+            let newCat = entry.category;
+
+            // ALL Incomes should be Receita
+            if (entry.type === 'income' && entry.category !== receitaCatId) {
+                newCat = receitaCatId;
+                changed = true;
+            }
+
+            // Fixed account entries with invalid categories
+            if (entry.fixedExpenseId && (!data.categories.some(c => c.id === entry.category) || entry.category === 'f')) {
+                newCat = contaFixaCatId;
+                changed = true;
+            }
+
+            if (changed) {
+                await this.finance.updateEntry(entry.id, { category: newCat });
+            }
+        }
+
+        // Corrigir Despesas Fixas (Modelos)
+        for (const exp of data.fixedExpenses) {
+            if (!data.categories.some(c => c.id === exp.category) || exp.category === 'f') {
+                // O método addFixedExpense usa setDoc contendo o ID, o que atualiza o registro
+                await this.finance.addFixedExpense({ ...exp, category: contaFixaCatId });
+            }
+        }
+
+        alert("Banco de dados verificado e corrigido com sucesso! Recarregue a página se os itens afetados não sumirem automaticamente.");
+    }
 }

@@ -2,10 +2,21 @@
     <h1>Lançamento Rápido (Lazer)</h1>
     <p class="subtitle">Gastou na rua? Lança rapidão aqui.</p>
 </header>
-<div class="glass-card form-container">
-    <form (ngSubmit)="onSubmit()" #f="ngForm">
+<div class="glass-card form-container p-4">
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="stacked-form">
+        <div class="input-row" style="margin-bottom: 1rem; display: flex; gap: 1rem; justify-content: center;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="quickType" value="expense" [(ngModel)]="type">
+                <span>Lazer (Despesa)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="quickType" value="income" [(ngModel)]="type">
+                <span>Receita Livre</span>
+            </label>
+        </div>
+
         <div class="input-group">
-            <label for="leisure-desc">Onde/O que foi?</label>
+            <label for="leisure-desc">Descrição</label>
             <input type="text" id="leisure-desc" name="desc" [(ngModel)]="desc" autofocus>
         </div>
         <div class="input-row" style="display:flex; flex-wrap:wrap; gap:1rem;">

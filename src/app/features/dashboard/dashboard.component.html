@@ -110,7 +110,7 @@
                 <span class="transaction-desc">{{ tx.description }}</span>
                 <div class="transaction-meta">
                     <span class="category-badge" [style.backgroundColor]="getCategoryColor(tx.category)"
-                        [style.color]="getTextColor(tx.category)">
+                        [style.color]="getTextColor(getCategoryColor(tx.category))">
                         {{ getCategoryName(tx.category) }}
                     </span>
                     <span>{{ tx.date | date:'dd/MM/yyyy' }}</span>
@@ -138,4 +138,11 @@
         </li>
         }
     </ul>
+</div>
+
+<div style="text-align: center; margin-top: 2rem;">
+    <button class="btn text-btn" style="font-size: 0.8rem; color: var(--text-muted); opacity: 0.5;"
+        (click)="fixDatabase()">
+        Rodar Correção de Banco de Dados (Categorias Inválidas)
+    </button>
 </div>

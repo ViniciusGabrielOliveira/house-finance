@@ -19,6 +19,7 @@ export class AddEntryComponent {
     amount: number | null = null;
     date = new Date().toISOString().split('T')[0];
     category = '';
+    type: 'income' | 'expense' = 'expense';
 
     ngOnInit() {
         const cats = this.finance.data().categories;
@@ -28,16 +29,23 @@ export class AddEntryComponent {
     }
 
     async onSubmit() {
-        if (!this.amount || !this.category) return; // Apenas valor e categoria são obrigatórios
+        // Amount is required. Category is required if it's an expense.
+        if (!this.amount || (this.type === 'expense' && !this.category)) return;
 
         let finalDate = this.date;
         if (!finalDate) {
             finalDate = new Date().toISOString().split('T')[0];
         }
 
+        let finalCatId = this.category;
+
+        if (this.type === 'income') {
+            finalCatId = await this.finance.ensureCategory('Receita', '#10b981');
+        }
+
         let finalDesc = this.desc;
         if (!finalDesc || finalDesc.trim() === '') {
-            const catObj = this.finance.data().categories.find((c: any) => c.id === this.category);
+            const catObj = this.finance.data().categories.find((c: any) => c.id === finalCatId);
             finalDesc = catObj ? catObj.name : 'Sem descrição';
         }
 
@@ -46,7 +54,8 @@ export class AddEntryComponent {
             description: finalDesc,
             amount: this.amount,
             date: finalDate,
-            category: this.category
+            category: finalCatId,
+            type: this.type
         };
 
         await this.finance.addEntry(entry);

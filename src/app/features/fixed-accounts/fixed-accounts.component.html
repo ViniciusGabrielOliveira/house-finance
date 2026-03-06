@@ -24,7 +24,7 @@
                     exp.dueDate }})</span>
                 <div class="transaction-meta">
                     <span class="category-badge" [style.backgroundColor]="getCategoryColor(exp.category)"
-                        [style.color]="getTextColor(exp.category)">
+                        [style.color]="getTextColor(getCategoryColor(exp.category))">
                         {{ getCategoryName(exp.category) }}
                     </span>
                 </div>
