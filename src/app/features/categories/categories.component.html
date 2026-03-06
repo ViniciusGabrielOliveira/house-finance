@@ -12,14 +12,24 @@
         <div class="input-group w-auto" style="margin:0;">
             <input type="color" name="color" [(ngModel)]="catColor" required>
         </div>
-        <button type="submit" class="btn primary-btn" [disabled]="!f.valid">Adicionar</button>
+        <button type="submit" class="btn primary-btn" [disabled]="!f.valid">
+            {{ editingCategoryId ? 'Salvar' : 'Adicionar' }}
+        </button>
+        <button *ngIf="editingCategoryId" type="button" class="btn" (click)="cancelEdit()">Cancelar</button>
     </form>
 
     <ul class="pill-list" style="list-style:none; display:flex; flex-wrap:wrap; gap:0.5rem;">
         @for (cat of finance.data().categories; track cat.id) {
-        <li class="pill" [style.backgroundColor]="cat.color">
+        <li class="pill" [style.backgroundColor]="cat.color" [style.color]="getTextColor(cat.color)">
             {{ cat.name }}
-            <button class="action-btn" (click)="finance.removeCategory(cat.id)">&times;</button>
+            <div style="display: flex; gap: 0.2rem; margin-left: 0.5rem;">
+                <button class="action-btn" [style.color]="getTextColor(cat.color)" (click)="editCategory(cat)"
+                    title="Editar">
+                    <i class="fi fi-rr-edit" style="font-size: 0.8rem;"></i>
+                </button>
+                <button class="action-btn" [style.color]="getTextColor(cat.color)"
+                    (click)="finance.removeCategory(cat.id)" title="Excluir">&times;</button>
+            </div>
         </li>
         }
     </ul>

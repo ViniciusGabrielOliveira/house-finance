@@ -196,6 +196,23 @@ export class FinanceService {
         }
     }
 
+    async updateCategory(categoryId: string, data: Partial<Category>) {
+        const uid = this.auth.user()?.uid;
+        if (!uid) return;
+
+        const previousCategories = this.data().categories;
+        const updatedCategories = previousCategories.map(c => c.id === categoryId ? { ...c, ...data } as Category : c);
+
+        this.updateState({ categories: updatedCategories });
+
+        try {
+            await this.repo.updateCategory(uid, categoryId, data);
+        } catch (error) {
+            console.error('Failed to update category:', error);
+            this.updateState({ categories: previousCategories });
+        }
+    }
+
     async updateBudgets(budgets: Budget[]) {
         const uid = this.auth.user()?.uid;
         if (!uid) return;
