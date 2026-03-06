@@ -42,28 +42,43 @@
 <div class="dashboard-grid mt-4">
     <div class="glass-card stat-card" style="border-left: 4px solid var(--success);">
         <h3 style="color: var(--success); margin-bottom: 0.5rem;">Receitas</h3>
-        <div class="amount" style="color: var(--success);">+ {{ stats().totalIncomes | currency:'BRL' }}</div>
+        <div class="amount" style="color: var(--success);">+ {{ stats().incomes.executed | currency:'BRL' }}</div>
+        <div class="text-sm mt-1" style="color: var(--text-muted); font-size: 0.85rem;">
+            Previsto: {{ stats().incomes.planned | currency:'BRL' }}
+        </div>
     </div>
     <div class="glass-card stat-card" style="border-left: 4px solid var(--danger);">
-        <h3 style="color: var(--danger); margin-bottom: 0.5rem;">Despesas</h3>
-        <div class="amount" style="color: var(--danger);">- {{ stats().totalExpenses | currency:'BRL' }}</div>
+        <h3 style="color: var(--danger); margin-bottom: 0.5rem;">Despesas Fixas</h3>
+        <div class="amount" style="color: var(--danger);">- {{ stats().fixed.executed | currency:'BRL' }}</div>
+        <div class="text-sm mt-1" style="color: var(--text-muted); font-size: 0.85rem;">
+            Previsto: {{ stats().fixed.planned | currency:'BRL' }}
+        </div>
+    </div>
+    <div class="glass-card stat-card" style="border-left: 4px solid var(--warning);">
+        <h3 style="color: var(--warning); margin-bottom: 0.5rem;">Despesas Variáveis</h3>
+        <div class="amount" style="color: var(--warning);">- {{ stats().variable.executed | currency:'BRL' }}</div>
+        <div class="text-sm mt-1" style="color: var(--text-muted); font-size: 0.85rem;">
+            Orçado: {{ stats().variable.planned | currency:'BRL' }}
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid mt-4" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div class="glass-card stat-card" style="border-left: 4px solid var(--info);">
+        <h3 style="color: var(--info); margin-bottom: 0.5rem;">Investimentos</h3>
+        <div class="amount" style="color: var(--info);">{{ stats().investments.executed | currency:'BRL' }}</div>
+        <div class="text-sm mt-1" style="color: var(--text-muted); font-size: 0.85rem;">
+            Realizado no período
+        </div>
     </div>
     <div class="glass-card stat-card" style="border-left: 4px solid var(--primary);">
         <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Saldo do Mês</h3>
         <div class="amount" [style.color]="stats().balance >= 0 ? 'var(--success)' : 'var(--danger)'">
             {{ stats().balance | currency:'BRL' }}
         </div>
-    </div>
-</div>
-
-<div class="dashboard-grid mt-4" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-    <div class="glass-card stat-card fixed-spent">
-        <h3>Contas Fixas Previstas</h3>
-        <div class="amount">{{ stats().fixed | currency:'BRL' }}</div>
-    </div>
-    <div class="glass-card stat-card leisure-spent">
-        <h3>Lazer</h3>
-        <div class="amount">{{ stats().leisure | currency:'BRL' }}</div>
+        <div class="text-sm mt-1" style="color: var(--text-muted); font-size: 0.85rem;">
+            Livre para uso
+        </div>
     </div>
 </div>
 

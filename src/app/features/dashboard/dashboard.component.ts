@@ -102,46 +102,103 @@ export class DashboardComponent {
     stats = computed(() => {
         const data = this.finance.data();
         const entries = this.filteredEntries();
-
-        let totalIncomes = 0, totalExpenses = 0, leisure = 0, fixed = 0;
-        const leisureCat = data.categories?.find((c: any) => c.name.toLowerCase() === 'lazer');
-
-        entries.forEach((e: any) => {
-            const amount = Number(e.amount);
-
-            if (e.type === 'income') {
-                totalIncomes += amount;
-            } else {
-                totalExpenses += amount;
-                if (leisureCat && e.category === leisureCat.id) leisure += amount;
-            }
-        });
-
-        // Sum fixed expenses (monthly projected string/number values)
-        if (data.fixedExpenses) {
-            data.fixedExpenses.forEach((fe: any) => fixed += Number(fe.amount));
-        }
-
         const p = this.period();
+
+        let monthsMultiplier = 1;
         if (p === 'current_year') {
-            fixed = fixed * 12;
+            monthsMultiplier = 12;
         } else if (p === 'custom_range') {
             const start = this.startMonth();
             const end = this.endMonth();
             if (start && end) {
                 const startD = new Date(`${start}-01T00:00:00`);
                 const endD = new Date(`${end}-01T00:00:00`);
-                let months = (endD.getFullYear() - startD.getFullYear()) * 12;
-                months -= startD.getMonth();
-                months += endD.getMonth();
-                months = months <= 0 ? 1 : months + 1; // Inclusive month count
-                fixed = fixed * months;
+                let m = (endD.getFullYear() - startD.getFullYear()) * 12;
+                m -= startD.getMonth();
+                m += endD.getMonth();
+                monthsMultiplier = m <= 0 ? 1 : m + 1;
             }
         }
 
-        const balance = totalIncomes - totalExpenses;
+        // --- PLANNED CALCULATIONS ---
 
-        return { totalIncomes, totalExpenses, balance, leisure, fixed };
+        // Planned Incomes: Sum of Fixed Incomes
+        let incomesPlanned = 0;
+        if (data.fixedIncomes) {
+            data.fixedIncomes.forEach((fi: any) => incomesPlanned += Number(fi.amount));
+        }
+        incomesPlanned *= monthsMultiplier;
+
+        // Planned Fixed Expenses: Sum of Fixed Expenses
+        let fixedExpensesPlanned = 0;
+        let fixedCategoryIds: string[] = [];
+        if (data.fixedExpenses) {
+            data.fixedExpenses.forEach((fe: any) => {
+                fixedExpensesPlanned += Number(fe.amount);
+                if (fe.category && !fixedCategoryIds.includes(fe.category)) {
+                    fixedCategoryIds.push(fe.category); // Track fixed categories
+                }
+            });
+        }
+        fixedExpensesPlanned *= monthsMultiplier;
+
+        // Planned Variable Expenses: Sum of Budgets (for this period)
+        let variablePlanned = 0;
+        if (data.budgets) {
+            if (p === 'current_month') {
+                const monthStr = new Date().toISOString().slice(0, 7);
+                data.budgets.filter((b: any) => b.monthStr === monthStr).forEach((b: any) => variablePlanned += Number(b.amount));
+            } else {
+                // Approximate for other periods based on a generic budget or average...
+                // Currently budgets are month-specific, so if not current month, we might
+                // have to sum them up or assume 0 for simplicity in this generalized view.
+                data.budgets.forEach((b: any) => variablePlanned += Number(b.amount));
+            }
+        }
+
+        // Planned Investments: Sum of Goal monthly savings requirements? Or just general target?
+        // Let's assume there's no strict "planned monthly investment" globally unless configured, 
+        // but we'll leave it 0 or calculate based on goals later.
+        let investmentsPlanned = 0;
+
+        // --- EXECUTED CALCULATIONS ---
+
+        let incomesExecuted = 0;
+        let fixedExpensesExecuted = 0;
+        let variableExecuted = 0;
+        let investmentsExecuted = 0;
+
+        // Try to identify an 'investimentos' Category if it exists
+        const investCat = data.categories?.find((c: any) =>
+            c.name.toLowerCase().includes('investimento') || c.name.toLowerCase().includes('meta')
+        );
+
+        entries.forEach((e: any) => {
+            const amount = Number(e.amount);
+
+            if (e.type === 'income') {
+                incomesExecuted += amount;
+            } else {
+                // If it's linked to a fixed expense or its category is known as fixed
+                if (e.fixedExpenseId || fixedCategoryIds.includes(e.category)) {
+                    fixedExpensesExecuted += amount;
+                } else if (investCat && e.category === investCat.id) {
+                    investmentsExecuted += amount;
+                } else {
+                    variableExecuted += amount;
+                }
+            }
+        });
+
+        const balance = incomesExecuted - (fixedExpensesExecuted + variableExecuted + investmentsExecuted);
+
+        return {
+            incomes: { planned: incomesPlanned, executed: incomesExecuted },
+            fixed: { planned: fixedExpensesPlanned, executed: fixedExpensesExecuted },
+            variable: { planned: variablePlanned, executed: variableExecuted },
+            investments: { planned: investmentsPlanned, executed: investmentsExecuted },
+            balance
+        };
     });
 
     searchTerm = signal('');
@@ -193,10 +250,10 @@ export class DashboardComponent {
         if (monthBudgets.length === 0) return null;
 
         const totalPlanned = monthBudgets.reduce((sum, b) => sum + Number(b.amount), 0);
-        const totalSpent = this.stats().totalExpenses;
+        const totalSpent = this.stats().variable.executed; // Or fixed + variable depending on logic. Usually variable is budgeted.
 
         if (totalSpent > totalPlanned) {
-            return `Atenção: Seus gastos ultrapassaram o orçamento geral planejado para o mês!`;
+            return `Atenção: Seus gastos variáveis ultrapassaram o orçamento planejado para o mês!`;
         }
         return null;
     });
