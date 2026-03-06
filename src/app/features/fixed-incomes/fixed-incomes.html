@@ -60,16 +60,18 @@
             </div>
 
             <div
-                style="display:flex; gap: 1rem; align-items: center; justify-content: space-between; flex: 1; flex-wrap: wrap; min-width: 200px;">
-                <div class="transaction-amount" [class.amount-paid]="isReceived(inc)"
-                    style="text-align: right; color: var(--success); font-size: 1.2rem; font-weight: 600;">
-                    + {{ inc.amount | currency:'BRL' }}
-                </div>
+                style="display:flex; gap: 1rem; align-items: center; justify-content: space-between; flex: 1; min-width: 250px; flex-wrap: wrap;">
 
-                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <div class="transaction-amount" [class.amount-paid]="isReceived(inc)"
+                        style="color: var(--success); font-size: 1.2rem; font-weight: 600;">
+                        + {{ inc.amount | currency:'BRL' }}
+                    </div>
+
                     @if (!isReceived(inc)) {
                     <button class="btn secondary-btn small-btn"
-                        style="border-color: var(--success); color: var(--success);" (click)="receiveIncome(inc)">
+                        style="border-color: var(--success); color: var(--success); padding: 0.3rem 0.6rem;"
+                        (click)="receiveIncome(inc)">
                         <span style="display: flex; align-items: center; gap: 0.25rem;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -89,22 +91,20 @@
                         Recebido
                     </span>
                     }
-
-                    <button class="action-btn"
-                        style="color:var(--text-muted); display:flex; align-items:center; justify-content:center; padding: 0.4rem; border-radius: 6px; transition: all 0.2s;"
-                        onmouseover="this.style.color='var(--danger)'; this.style.background='rgba(239, 68, 68, 0.1)'"
-                        onmouseout="this.style.color='var(--text-muted)'; this.style.background='transparent'"
-                        (click)="finance.removeFixedIncome(inc.id)" title="Excluir">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                            </path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                    </button>
                 </div>
+
+                <button class="action-btn"
+                    style="color:var(--text-muted); display:flex; align-items:center; justify-content:center; padding: 0.2rem; border: none; background: transparent; cursor: pointer; transition: color 0.2s;"
+                    onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'"
+                    (click)="finance.removeFixedIncome(inc.id)" title="Excluir">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                        </path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
             </div>
         </li>
         } @empty {
