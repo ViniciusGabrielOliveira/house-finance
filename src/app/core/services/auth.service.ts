@@ -11,8 +11,10 @@ export class AuthService {
     private auth = inject(Auth);
 
     // Convert Firebase authState Observable → Signal
-    user = toSignal(authState(this.auth), { initialValue: null });
+    // Undefined means "loading/verifying session". Null means "not logged in".
+    user = toSignal(authState(this.auth), { initialValue: undefined });
 
+    isAuthLoaded = computed(() => this.user() !== undefined);
     isLoggedIn = computed(() => !!this.user());
 
     async loginWithGoogle() {

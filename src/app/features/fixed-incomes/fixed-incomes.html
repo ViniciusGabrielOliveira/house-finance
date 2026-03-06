@@ -23,29 +23,41 @@
         <button type="submit" class="btn primary-btn" [disabled]="!f.valid">Adicionar</button>
     </form>
 
-    <div class="list-container">
-        @if (finance.data().fixedIncomes.length === 0) {
-        <p class="empty-state">Nenhuma receita fixa cadastrada.</p>
-        } @else {
-        <div class="list-item" *ngFor="let inc of finance.data().fixedIncomes">
-            <div class="item-info">
-                <strong>{{ inc.name }}</strong>
-                <span class="text-sm opacity-70">Previsto para: {{ inc.receiptDate | date:'dd/MM/yyyy' }}</span>
+    <div class="list-header mt-4" style="padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+        <h3 style="margin: 0;">Receitas do Mês</h3>
+    </div>
+
+    <ul class="transaction-list border-list" style="padding: 1rem 0 0 0;">
+        @for (inc of finance.data().fixedIncomes; track inc.id) {
+        <li class="transaction-item">
+            <div class="transaction-info">
+                <span class="transaction-desc" [class.amount-paid]="isReceived(inc)">
+                    {{ inc.name }} (Previsto dia {{ inc.receiptDate | date:'dd/MM' }})
+                </span>
             </div>
-            <div class="item-amount" style="color: var(--success); font-weight: 600;">
-                + {{ inc.amount | currency:'BRL' }}
-            </div>
-            <div class="item-actions"
-                style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; justify-content: flex-end; flex: 1;">
-                <button class="btn primary-btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;"
-                    [disabled]="isReceived(inc)" (click)="receiveIncome(inc)">
-                    {{ isReceived(inc) ? '✔ Recebido' : 'Receber Mês Atual' }}
-                </button>
+
+            <div
+                style="display:flex; gap: 1rem; align-items: center; justify-content: flex-end; flex: 1; flex-wrap: wrap;">
+                <div class="transaction-amount" [class.amount-paid]="isReceived(inc)"
+                    style="text-align: right; color: var(--success); font-weight: 600;">
+                    + {{ inc.amount | currency:'BRL' }}
+                </div>
+
+                @if (!isReceived(inc)) {
+                <button class="btn primary-btn small-btn" (click)="receiveIncome(inc)">Receber</button>
+                } @else {
+                <span style="color: var(--success); font-weight:600; font-size: 0.9rem">✔ Recebido</span>
+                }
+
                 <button class="action-btn"
                     style="color:var(--danger); font-size: 1.2rem; display:flex; align-items:center; padding: 0.2rem;"
                     (click)="finance.removeFixedIncome(inc.id)" title="Remover">&times;</button>
             </div>
-        </div>
+        </li>
+        } @empty {
+        <li class="transaction-item">
+            <div style="color:var(--text-muted)">Nenhuma receita fixa cadastrada.</div>
+        </li>
         }
-    </div>
+    </ul>
 </div>
