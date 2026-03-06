@@ -68,7 +68,11 @@ export class FinanceService {
         // Sync Categories
         const unsubCat = onSnapshot(this.repo.getCategoriesRef(uid), (snap) => {
             const categories = snap.docs.map(d => d.data() as Category);
-            this.updateState({ categories: categories.length ? categories : DEFAULT_CATEGORIES });
+
+            // Allow an empty array if the user explicitly deleted all categories.
+            // DEFAULT_CATEGORIES are inherently loaded into the signal on startup,
+            // but we override them with whatever comes from Firebase (even if empty).
+            this.updateState({ categories });
         }, (error) => {
             console.error('Snapshot error (Categories):', error);
         });
