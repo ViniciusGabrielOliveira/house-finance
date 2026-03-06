@@ -9,6 +9,6 @@ export const environment = {
         appId: '1:597335673583:web:003f159b39c09051a3691a'
     },
     allowedEmails: [
-        'wiboo.design@gmail.com' // Altere para o seu e-mail secundário ou principal
+        'vierefamily@gmail.com'
     ]
 };
