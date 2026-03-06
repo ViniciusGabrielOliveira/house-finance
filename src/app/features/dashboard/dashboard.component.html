@@ -71,12 +71,13 @@
     class="mt-4 mb-2">
     <h2 class="section-title" style="margin: 0;">Lançamentos {{ period() === 'all' ? '' : 'do Período' }}</h2>
 
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; flex: 1; align-items: center; justify-content: flex-end;">
         <input type="text" class="glass-input" placeholder="Buscar lançamento..." [ngModel]="searchTerm()"
-            (ngModelChange)="searchTerm.set($event)" style="padding: 0.5rem 1rem; border-radius: 8px; width: 200px;">
+            (ngModelChange)="searchTerm.set($event)"
+            style="padding: 0.5rem 1rem; border-radius: 8px; flex: 1 1 150px; min-width: 0;">
 
         <select class="glass-input" [ngModel]="filterCategory()" (ngModelChange)="filterCategory.set($event)"
-            style="padding: 0.5rem 1rem; border-radius: 8px;">
+            style="padding: 0.5rem 1rem; border-radius: 8px; flex: 1 1 150px; min-width: 0;">
             <option value="all">Todas Categorias</option>
             @for (cat of finance.data().categories; track cat.id) {
             <option [value]="cat.id">{{ cat.name }}</option>
@@ -93,7 +94,8 @@
             <div class="transaction-info">
                 <span class="transaction-desc">{{ tx.description }}</span>
                 <div class="transaction-meta">
-                    <span class="category-badge" [style.backgroundColor]="getCategoryColor(tx.category)">
+                    <span class="category-badge" [style.backgroundColor]="getCategoryColor(tx.category)"
+                        [style.color]="getTextColor(tx.category)">
                         {{ getCategoryName(tx.category) }}
                     </span>
                     <span>{{ tx.date | date:'dd/MM/yyyy' }}</span>

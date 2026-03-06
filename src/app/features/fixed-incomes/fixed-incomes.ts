@@ -17,6 +17,13 @@ export class FixedIncomesComponent {
   incAmount: number | null = null;
   incDate = '';
 
+  isReceived(income: FixedIncome): boolean {
+    const currentMonthStr = new Date().toISOString().slice(0, 7);
+    return this.finance.data().entries.some(
+      (e: any) => e.fixedExpenseId === income.id && e.date.startsWith(currentMonthStr)
+    );
+  }
+
   async onSubmit() {
     if (!this.incName || !this.incAmount || !this.incDate) return;
 
@@ -34,18 +41,7 @@ export class FixedIncomesComponent {
   }
 
   async receiveIncome(income: FixedIncome) {
-    // Find existing 'receita' category or default to the first one just in case
-    let catId = this.finance.data().categories.find(c => c.name.toLowerCase() === 'receita')?.id;
-
-    if (!catId) {
-      // If the user doesn't have a specific category, try finding "salário"
-      catId = this.finance.data().categories.find(c => c.name.toLowerCase() === 'salário' || c.name.toLowerCase() === 'salario')?.id;
-    }
-
-    if (!catId) {
-      const defaultCat = this.finance.data().categories[0];
-      catId = defaultCat ? defaultCat.id : '1';
-    }
+    const catId = await this.finance.ensureCategory('Receita', '#10b981');
 
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD

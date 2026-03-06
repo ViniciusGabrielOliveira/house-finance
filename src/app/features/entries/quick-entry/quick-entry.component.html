@@ -8,12 +8,12 @@
             <label for="leisure-desc">Onde/O que foi?</label>
             <input type="text" id="leisure-desc" name="desc" [(ngModel)]="desc" autofocus>
         </div>
-        <div class="input-row" style="display:flex; gap:1rem;">
-            <div class="input-group" style="flex:2;">
+        <div class="input-row" style="display:flex; flex-wrap:wrap; gap:1rem;">
+            <div class="input-group" style="flex: 1 1 150px;">
                 <label for="leisure-amount">Valor (R$)</label>
                 <input type="number" step="0.01" id="leisure-amount" name="amount" [(ngModel)]="amount" required>
             </div>
-            <div class="input-group" style="flex:1;">
+            <div class="input-group" style="flex: 1 1 150px;">
                 <label for="leisure-date">Data</label>
                 <input type="date" id="leisure-date" name="date" [(ngModel)]="date">
             </div>

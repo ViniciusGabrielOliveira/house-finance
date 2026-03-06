@@ -171,6 +171,16 @@ export class DashboardComponent {
         return this.finance.data().categories?.find((c: any) => c.id === id)?.name || 'Sem Categoria';
     }
 
+    getTextColor(hexcolor: string): string {
+        if (!hexcolor || hexcolor.length < 6) return '#ffffff';
+        hexcolor = hexcolor.replace('#', '');
+        const r = parseInt(hexcolor.substring(0, 2), 16);
+        const g = parseInt(hexcolor.substring(2, 4), 16);
+        const b = parseInt(hexcolor.substring(4, 6), 16);
+        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return (yiq >= 128) ? '#000000' : '#ffffff';
+    }
+
     budgetAlert = computed(() => {
         const p = this.period();
         if (p !== 'current_month') return null;

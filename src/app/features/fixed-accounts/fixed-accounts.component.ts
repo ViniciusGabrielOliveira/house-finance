@@ -31,6 +31,16 @@ export class FixedAccountsComponent {
         return this.finance.data().categories.find((c: any) => c.id === id)?.name || 'Fixa';
     }
 
+    getTextColor(hexcolor: string): string {
+        if (!hexcolor || hexcolor.length < 6) return '#ffffff';
+        hexcolor = hexcolor.replace('#', '');
+        const r = parseInt(hexcolor.substring(0, 2), 16);
+        const g = parseInt(hexcolor.substring(2, 4), 16);
+        const b = parseInt(hexcolor.substring(4, 6), 16);
+        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return (yiq >= 128) ? '#000000' : '#ffffff';
+    }
+
     async addFixedExpense() {
         const name = prompt("Nome da Conta Fixa:");
         if (!name) return;
@@ -41,7 +51,7 @@ export class FixedAccountsComponent {
         const dueDate = prompt("Dia do Vencimento (01 a 31):");
         if (!dueDate) return;
 
-        let fixedCat = this.finance.data().categories[0]?.id || "f";
+        const fixedCat = await this.finance.ensureCategory('Conta Fixa', '#64748b');
 
         const newFixed: FixedExpense = {
             id: 'f' + Date.now().toString(),
@@ -67,12 +77,18 @@ export class FixedAccountsComponent {
             paymentDate = `${targetMonthStr}-${expense.dueDate}`;
         }
 
+        // Se o expense foi criado com categoria inválida no passado, atualiza/assegura agora
+        let finalCatId = expense.category;
+        if (finalCatId === 'f' || !this.finance.data().categories.some(c => c.id === finalCatId)) {
+            finalCatId = await this.finance.ensureCategory('Conta Fixa', '#64748b');
+        }
+
         const newEntry: Entry = {
             id: Date.now().toString(),
             description: `Pgto. Conta: ${expense.name}`,
             amount: expense.amount,
             date: paymentDate,
-            category: expense.category,
+            category: finalCatId,
             fixedExpenseId: expense.id
         };
 

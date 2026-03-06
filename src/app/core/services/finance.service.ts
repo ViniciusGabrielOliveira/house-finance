@@ -142,6 +142,22 @@ export class FinanceService {
     // Mutators
     // ---------------------------
 
+    /**
+     * Helper to ensure a category exists by name.
+     * If it doesn't exist, it creates it with the provided color and returns the new ID.
+     */
+    async ensureCategory(name: string, color: string): Promise<string> {
+        const existing = this.data().categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+        if (existing) {
+            return existing.id;
+        }
+
+        const newId = Date.now().toString();
+        const newCat: Category = { id: newId, name, color };
+        await this.addCategory(newCat);
+        return newId;
+    }
+
     async addEntry(entry: Entry) {
         const uid = this.auth.user()?.uid;
         if (!uid) return;

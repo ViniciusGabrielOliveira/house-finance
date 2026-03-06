@@ -35,10 +35,15 @@
             <div class="item-amount" style="color: var(--success); font-weight: 600;">
                 + {{ inc.amount | currency:'BRL' }}
             </div>
-            <div class="item-actions">
+            <div class="item-actions"
+                style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; justify-content: flex-end; flex: 1;">
                 <button class="btn primary-btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;"
-                    (click)="receiveIncome(inc)">Receber Mês Atual</button>
-                <button class="action-btn" (click)="finance.removeFixedIncome(inc.id)" title="Remover">&times;</button>
+                    [disabled]="isReceived(inc)" (click)="receiveIncome(inc)">
+                    {{ isReceived(inc) ? '✔ Recebido' : 'Receber Mês Atual' }}
+                </button>
+                <button class="action-btn"
+                    style="color:var(--danger); font-size: 1.2rem; display:flex; align-items:center; padding: 0.2rem;"
+                    (click)="finance.removeFixedIncome(inc.id)" title="Remover">&times;</button>
             </div>
         </div>
         }
