@@ -64,6 +64,28 @@ export class FixedAccountsComponent {
         await this.finance.addFixedExpense(newFixed);
     }
 
+    async editFixedExpense(expense: FixedExpense) {
+        const name = prompt("Nome da Conta Fixa:", expense.name);
+        if (!name) return;
+        const amountStr = prompt("Valor (R$):", expense.amount.toString());
+        if (!amountStr) return;
+        const amount = parseFloat(amountStr);
+        if (isNaN(amount)) return;
+        const dueDate = prompt("Dia do Vencimento (01 a 31):", expense.dueDate);
+        if (!dueDate) return;
+
+        await this.finance.updateFixedExpense(expense.id, {
+            name,
+            amount,
+            dueDate: dueDate.padStart(2, '0')
+        });
+    }
+
+    async removeFixedExpense(expense: FixedExpense) {
+        if (!confirm(`Remover "${expense.name}"? Esta ação afeta todos os meses.`)) return;
+        await this.finance.removeFixedExpense(expense.id);
+    }
+
     async markPaid(expense: FixedExpense) {
         // Obter Date a partir do selectedMonth("YYYY-MM") e montar uma string compatível "YYYY-MM-DD"
         // Considerando que estamos setando em "DD", usaremos o Dia atual ou se for mes passado, dia 01.

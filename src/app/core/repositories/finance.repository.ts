@@ -54,6 +54,11 @@ export class FinanceRepository {
         await setDoc(docRef, expense);
     }
 
+    async updateFixedExpense(userId: string, expenseId: string, data: Partial<FixedExpense>): Promise<void> {
+        const docRef = doc(this.getFixedExpensesRef(userId), expenseId);
+        await setDoc(docRef, data, { merge: true });
+    }
+
     async removeFixedExpense(userId: string, expenseId: string): Promise<void> {
         const docRef = doc(this.getFixedExpensesRef(userId), expenseId);
         await deleteDoc(docRef);

@@ -205,6 +205,37 @@ export class FinanceService {
         }
     }
 
+    async updateFixedExpense(expenseId: string, data: Partial<FixedExpense>) {
+        const uid = this.auth.user()?.uid;
+        if (!uid) return;
+
+        const previousExpenses = this.data().fixedExpenses;
+        const updatedExpenses = previousExpenses.map(e => e.id === expenseId ? { ...e, ...data } as FixedExpense : e);
+        this.updateState({ fixedExpenses: updatedExpenses });
+
+        try {
+            await this.repo.updateFixedExpense(uid, expenseId, data);
+        } catch (error) {
+            console.error('Failed to update fixed expense:', error);
+            this.updateState({ fixedExpenses: previousExpenses });
+        }
+    }
+
+    async removeFixedExpense(expenseId: string) {
+        const uid = this.auth.user()?.uid;
+        if (!uid) return;
+
+        const previousExpenses = this.data().fixedExpenses;
+        this.updateState({ fixedExpenses: previousExpenses.filter(e => e.id !== expenseId) });
+
+        try {
+            await this.repo.removeFixedExpense(uid, expenseId);
+        } catch (error) {
+            console.error('Failed to remove fixed expense:', error);
+            this.updateState({ fixedExpenses: previousExpenses });
+        }
+    }
+
     async addCategory(category: Category) {
         const uid = this.auth.user()?.uid;
         if (!uid) return;
