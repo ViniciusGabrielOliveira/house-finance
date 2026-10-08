@@ -1,5 +1,18 @@
 # HouseFinance
 
+Firebase migration prepared on 2026-10-08: both local environments now use
+`house-finance-7dac6`, with the existing interface preserved. The new Firestore
+contains the six recovered categories and 17 recurring expenses from the original
+screenshots. Security rules were tested and deployed from
+`/home/vini/Projects/house-finance-collector`.
+
+The GitHub Pages login domain `viniciusgabrieloliveira.github.io` was configured
+by the user and verified in Firebase Authentication on 2026-10-08.
+Pushing to `master` publishes this configuration through the existing GitHub
+Actions workflow. Browser login has not yet been validated. Budget and payment
+history have not been recovered. See the collector's `finance/README.md` for
+verified state and backup locations.
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.1.
 
 ## Development server

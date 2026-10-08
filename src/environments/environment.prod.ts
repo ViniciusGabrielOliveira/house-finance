@@ -1,14 +1,14 @@
 export const environment = {
-    production: true,
-    firebase: {
-        apiKey: 'AIzaSyCGTlFWIzCt1aXMaM8JITJTIh6wgEXi7UQ',
-        authDomain: 'house-finance-d3b04.firebaseapp.com',
-        projectId: 'house-finance-d3b04',
-        storageBucket: 'house-finance-d3b04.firebasestorage.app',
-        messagingSenderId: '597335673583',
-        appId: '1:597335673583:web:003f159b39c09051a3691a'
+    "production": true,
+    "firebase": {
+        "apiKey": "AIzaSyB7xviiR7j5_f0EiuivzvnoCCAKqqiquEs",
+        "authDomain": "house-finance-7dac6.firebaseapp.com",
+        "projectId": "house-finance-7dac6",
+        "storageBucket": "house-finance-7dac6.firebasestorage.app",
+        "messagingSenderId": "484510089166",
+        "appId": "1:484510089166:web:91042e6aa2eced82b0759f"
     },
-    allowedEmails: [
-        'vierefamily@gmail.com'
+    "allowedEmails": [
+        "vierefamily@gmail.com"
     ]
 };
